@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/screens/main_screen.dart';
 
 void main() {
-  runApp(MainScreen());
+  runApp(MaterialApp(home: MainScreen()));
 }
