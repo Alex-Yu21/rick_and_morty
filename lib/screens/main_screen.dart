@@ -7,6 +7,20 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: CharacterCard(characterModel: character));
+    return Scaffold(
+      appBar: AppBar(title: Text('Rick and Morty')),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
+        ],
+      ),
+      body: ListView.builder(
+        itemCount: characters.length,
+        itemBuilder:
+            (context, index) =>
+                CharacterCard(characterModel: characters[index]),
+      ),
+    );
   }
 }
