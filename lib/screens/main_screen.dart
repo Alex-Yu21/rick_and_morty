@@ -8,11 +8,11 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Rick and Morty')),
+      appBar: AppBar(title: Text('Rick and Morty'), centerTitle: true),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: ''),
         ],
       ),
       body: ListView.builder(
