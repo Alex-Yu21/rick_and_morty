@@ -5,17 +5,25 @@ class CharacterCard extends StatefulWidget {
   const CharacterCard({
     super.key,
     required this.characterModel,
-    this.isFavorited = false,
+    this.isFavorit = false,
   });
 
   final CharacterModel characterModel;
-  final bool isFavorited;
+  final bool isFavorit;
 
   @override
   State<CharacterCard> createState() => _CharacterCardState();
 }
 
 class _CharacterCardState extends State<CharacterCard> {
+  late bool isFavorit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorit = widget.isFavorit;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -23,12 +31,23 @@ class _CharacterCardState extends State<CharacterCard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Theme.of(context).colorScheme.secondary,
       child: SizedBox(
-        height: 120,
+        height: 130,
         width: double.infinity,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 100, width: 100),
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+              ),
+              child: Image.network(
+                widget.characterModel.image,
+                width: 100,
+                height: 130,
+                fit: BoxFit.cover,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -37,19 +56,28 @@ class _CharacterCardState extends State<CharacterCard> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       widget.characterModel.name,
                       style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      widget.characterModel.status,
+                      'Origin: ${widget.characterModel.origin}',
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${widget.characterModel.status} - ${widget.characterModel.species}',
+                      style: const TextStyle(
+                        fontSize: 14,
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -57,7 +85,23 @@ class _CharacterCardState extends State<CharacterCard> {
                 ),
               ),
             ),
-            IconButton(onPressed: () {}, icon: Icon(Icons.star)),
+            Padding(
+              padding: const EdgeInsets.only(right: 5, top: 5),
+              child: IconButton(
+                icon: Icon(
+                  isFavorit ? Icons.star : Icons.star_border,
+                  color:
+                      isFavorit
+                          ? const Color.fromARGB(255, 206, 177, 89)
+                          : Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isFavorit = !isFavorit;
+                  });
+                },
+              ),
+            ),
           ],
         ),
       ),
