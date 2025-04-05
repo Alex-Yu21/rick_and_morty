@@ -36,18 +36,18 @@ class _CharacterCardState extends State<CharacterCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
-              ),
-              child: Image.network(
-                widget.characterModel.image,
-                width: 100,
-                height: 130,
-                fit: BoxFit.cover,
-              ),
-            ),
+            // ClipRRect(
+            //   borderRadius: const BorderRadius.only(
+            //     topLeft: Radius.circular(16),
+            //     bottomLeft: Radius.circular(16),
+            //   ),
+            //   child: Image.network(
+            //     widget.characterModel.image,
+            //     width: 100,
+            //     height: 130,
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -85,21 +85,24 @@ class _CharacterCardState extends State<CharacterCard> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 5, top: 5),
-              child: IconButton(
-                icon: Icon(
-                  isFavorit ? Icons.star : Icons.star_border,
-                  color:
-                      isFavorit
-                          ? const Color.fromARGB(255, 206, 177, 89)
-                          : Theme.of(context).colorScheme.primary,
+            SizedBox(
+              width: 48,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: Icon(
+                    isFavorit ? Icons.star : Icons.star_border,
+                    color:
+                        isFavorit
+                            ? const Color.fromARGB(255, 206, 177, 89)
+                            : Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isFavorit = !isFavorit;
+                    });
+                  },
                 ),
-                onPressed: () {
-                  setState(() {
-                    isFavorit = !isFavorit;
-                  });
-                },
               ),
             ),
           ],
