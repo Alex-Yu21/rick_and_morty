@@ -6,7 +6,13 @@ import 'package:rick_and_morty/models/results_hive_model.dart';
 class FavoritesProvider extends ChangeNotifier {
   final Box<ResultsHiveModel> _box = Hive.box<ResultsHiveModel>('favorites');
 
-  List<Results> get favorites => _box.values.map((e) => e.toResults()).toList();
+  List<Results> _cachedFavorites = [];
+
+  FavoritesProvider() {
+    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
+  }
+
+  List<Results> get favorites => _cachedFavorites;
 
   bool isFavorite(int id) => _box.containsKey(id);
 
@@ -19,31 +25,28 @@ class FavoritesProvider extends ChangeNotifier {
     } else {
       _box.put(characterId, ResultsHiveModel.fromResults(character));
     }
+
+    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
     notifyListeners();
   }
 
   void removeFavorite(int id) {
     _box.delete(id);
+    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
     notifyListeners();
   }
 
   void sortByName() {
-    final sorted =
-        _box.values.toList()..sort((a, b) => a.name.compareTo(b.name));
-    _box.clear();
-    for (var c in sorted) {
-      _box.put(c.id, c);
-    }
+    _cachedFavorites.sort(
+      (Results a, Results b) => (a.name ?? '').compareTo(b.name ?? ''),
+    );
     notifyListeners();
   }
 
   void sortByStatus() {
-    final sorted =
-        _box.values.toList()..sort((a, b) => a.status.compareTo(b.status));
-    _box.clear();
-    for (var c in sorted) {
-      _box.put(c.id, c);
-    }
+    _cachedFavorites.sort(
+      (Results a, Results b) => (a.status ?? '').compareTo(b.status ?? ''),
+    );
     notifyListeners();
   }
 }
