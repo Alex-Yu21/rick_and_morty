@@ -6,8 +6,14 @@ class GetCharsRepo {
 
   final Dio dio;
 
-  Future<CharacterModel> getData() async {
-    final Response response = await dio.get('/character');
-    return CharacterModel.fromJson(response.data);
+  Future<CharacterModel> getData({int page = 1}) async {
+    try {
+      final response = await dio.get('/character?page=$page');
+      print('RESPONSE DATA: ${response.data}');
+      return CharacterModel.fromJson(response.data);
+    } catch (e) {
+      print('ERROR: $e');
+      throw Exception('Ошибка при получении данных: $e');
+    }
   }
 }

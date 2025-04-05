@@ -7,28 +7,52 @@ part 'chars_event.dart';
 part 'chars_state.dart';
 
 class CharsBloc extends Bloc<CharsEvent, CharsState> {
+  final GetCharsRepo repo;
+
+  int currentPage = 1;
+  bool hasNextPage = true;
+  List<Results> _allResults = [];
+
   CharsBloc({required this.repo}) : super(CharsInitial()) {
-    on<GetAllChars>((event, emit) async {
-      emit(CharsLoading());
-
-      try {
-        debugPrint('[CharsBloc] Запрос данных...');
-
-        final characterModel = await repo.getData();
-
-        debugPrint(
-          '[CharsBloc] Загружено: ${characterModel.results?.length} персонажей',
-        );
-
-        emit(CharsLoaded(characterModel));
-      } catch (e, stackTrace) {
-        debugPrint('[CharsBloc] Ошибка: $e');
-        debugPrint('[CharsBloc] Стек: $stackTrace');
-
-        emit(CharsError('Network error'));
-      }
-    });
+    on<GetAllChars>(_onGetAllChars);
   }
 
-  final GetCharsRepo repo;
+  Future<void> _onGetAllChars(
+    GetAllChars event,
+    Emitter<CharsState> emit,
+  ) async {
+    if (!hasNextPage && event.page != 1) return;
+
+    if (event.page == 1) emit(CharsLoading());
+
+    try {
+      debugPrint('[CharsBloc] Запрос страницы: ${event.page}');
+
+      final characterModel = await repo.getData(page: event.page);
+
+      currentPage = event.page;
+      hasNextPage = characterModel.info?.next != null;
+
+      if (event.page == 1) {
+        _allResults = characterModel.results ?? [];
+      } else {
+        _allResults += characterModel.results ?? [];
+      }
+
+      debugPrint(
+        '[CharsBloc] Всего загружено: ${_allResults.length} персонажей',
+      );
+
+      emit(
+        CharsLoaded(
+          CharacterModel(info: characterModel.info, results: _allResults),
+        ),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('[CharsBloc] Ошибка: $e');
+      debugPrint('[CharsBloc] Стек: $stackTrace');
+
+      emit(CharsError('Network error'));
+    }
+  }
 }
