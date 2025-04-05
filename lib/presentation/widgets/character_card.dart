@@ -4,11 +4,11 @@ import 'package:rick_and_morty/models/character.dart';
 class CharacterCard extends StatefulWidget {
   const CharacterCard({
     super.key,
-    required this.characterModel,
+    required this.character,
     this.isFavorit = false,
   });
 
-  final CharacterModel characterModel;
+  final Results character;
   final bool isFavorit;
 
   @override
@@ -16,7 +16,7 @@ class CharacterCard extends StatefulWidget {
 }
 
 class _CharacterCardState extends State<CharacterCard> {
-  late bool isFavorit = false;
+  late bool isFavorit;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _CharacterCardState extends State<CharacterCard> {
                 bottomLeft: Radius.circular(16),
               ),
               child: Image.network(
-                widget.characterModel.image,
+                widget.character.image ?? '',
                 width: 100,
                 height: 130,
                 fit: BoxFit.cover,
@@ -59,7 +59,7 @@ class _CharacterCardState extends State<CharacterCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.characterModel.name,
+                      widget.character.name ?? '',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -67,7 +67,7 @@ class _CharacterCardState extends State<CharacterCard> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Origin: ${widget.characterModel.origin}',
+                      'Origin: ${widget.character.origin?.name ?? ''}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -80,12 +80,14 @@ class _CharacterCardState extends State<CharacterCard> {
                           fontWeight: FontWeight.w300,
                         ),
                         children: [
-                          TextSpan(text: '${widget.characterModel.species} - '),
                           TextSpan(
-                            text: widget.characterModel.status,
+                            text: '${widget.character.species ?? ''} - ',
+                          ),
+                          TextSpan(
+                            text: widget.character.status ?? '',
                             style: TextStyle(
                               color: _getStatusColor(
-                                widget.characterModel.status,
+                                widget.character.status ?? '',
                               ),
                             ),
                           ),

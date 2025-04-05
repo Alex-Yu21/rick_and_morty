@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rick_and_morty/theme/app_colors.dart';
+import 'package:rick_and_morty/presentation/theme/app_colors.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool isDarkTheme = false;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rick_and_morty/screens/character_list_screen.dart';
-import 'package:rick_and_morty/screens/favorite_screen.dart';
-import 'package:rick_and_morty/theme/theme_provider.dart';
-import 'package:rick_and_morty/providers/bottom_nav_provider.dart';
+import 'package:rick_and_morty/presentation/screens/character_list_screen.dart';
+import 'package:rick_and_morty/presentation/screens/favorite_screen.dart';
+import 'package:rick_and_morty/presentation/providers/theme_provider.dart';
+import 'package:rick_and_morty/presentation/providers/bottom_nav_provider.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -12,7 +12,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomNavProvider = context.watch<BottomNavProvider>();
 
-    final screens = const [CharacterListScreen(), FavoriteScreen()];
+    final screens = [CharacterListScreen(), FavoriteScreen()];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rick and Morty'),
