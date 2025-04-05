@@ -1,39 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rick_and_morty/data/dummy_data.dart';
+import 'package:rick_and_morty/screens/favorite_screen.dart';
 import 'package:rick_and_morty/theme/theme_provider.dart';
 import 'package:rick_and_morty/widgets/character_card.dart';
+import 'package:rick_and_morty/providers/bottom_nav_provider.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final bottomNavProvider = context.watch<BottomNavProvider>();
+
+    final screens = [
+      ListView.builder(
+        itemCount: characters.length,
+        itemBuilder:
+            (context, index) =>
+                CharacterCard(characterModel: characters[index]),
+      ),
+      const FavoriteScreen(),
+    ];
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rick and Morty'),
+        title: const Text('Rick and Morty'),
         centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
               context.read<ThemeProvider>().changeTheme();
             },
-            icon: Icon(Icons.brightness_6),
+            icon: const Icon(Icons.brightness_6),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        currentIndex: bottomNavProvider.currentIndex,
+        onTap: (val) {
+          context.read<BottomNavProvider>().setIndex(val);
+        },
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: ''),
         ],
       ),
-      body: ListView.builder(
-        itemCount: characters.length,
-        itemBuilder:
-            (context, index) =>
-                CharacterCard(characterModel: characters[index]),
-      ),
+      body: screens[bottomNavProvider.currentIndex],
     );
   }
 }
