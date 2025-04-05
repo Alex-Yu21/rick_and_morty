@@ -36,18 +36,18 @@ class _CharacterCardState extends State<CharacterCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ClipRRect(
-            //   borderRadius: const BorderRadius.only(
-            //     topLeft: Radius.circular(16),
-            //     bottomLeft: Radius.circular(16),
-            //   ),
-            //   child: Image.network(
-            //     widget.characterModel.image,
-            //     width: 100,
-            //     height: 130,
-            //     fit: BoxFit.cover,
-            //   ),
-            // ),
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+              ),
+              child: Image.network(
+                widget.characterModel.image,
+                width: 100,
+                height: 130,
+                fit: BoxFit.cover,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -74,11 +74,22 @@ class _CharacterCardState extends State<CharacterCard> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      '${widget.characterModel.status} - ${widget.characterModel.species}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w300,
+                        ),
+                        children: [
+                          TextSpan(text: '${widget.characterModel.species} - '),
+                          TextSpan(
+                            text: widget.characterModel.status,
+                            style: TextStyle(
+                              color: _getStatusColor(
+                                widget.characterModel.status,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -109,5 +120,16 @@ class _CharacterCardState extends State<CharacterCard> {
         ),
       ),
     );
+  }
+
+  Color? _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'alive':
+        return const Color.fromARGB(255, 42, 94, 43);
+      case 'dead':
+        return const Color.fromARGB(255, 142, 38, 31);
+      default:
+        return null;
+    }
   }
 }
