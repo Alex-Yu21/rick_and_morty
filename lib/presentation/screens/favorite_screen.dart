@@ -54,8 +54,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     onChanged: _onSortChanged,
                     items: const [
                       DropdownMenuItem(value: 'none', child: Text('None')),
-                      DropdownMenuItem(value: 'name', child: Text('Name')),
                       DropdownMenuItem(value: 'status', child: Text('Status')),
+                      DropdownMenuItem(value: 'name', child: Text('Name')),
                     ],
                   ),
                 ],
@@ -88,7 +88,42 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 itemCount: favorites.length,
                 itemBuilder: (context, index) {
                   final character = favorites[index];
-                  return CharacterCard(character: character);
+                  return Dismissible(
+                    key: ValueKey(character.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: Colors.blueGrey.withAlpha(50),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: const [
+                          Icon(Icons.delete_outline),
+                          SizedBox(width: 8),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                    onDismissed: (direction) {
+                      final provider = context.read<FavoritesProvider>();
+                      provider.toggleFavorite(character);
+
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${character.name} was removed'),
+                          action: SnackBarAction(
+                            label: 'Undo',
+                            onPressed: () {
+                              provider.toggleFavorite(character);
+                            },
+                          ),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    },
+                    child: CharacterCard(character: character),
+                  );
                 },
               ),
             ),

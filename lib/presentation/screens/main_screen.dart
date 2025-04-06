@@ -13,11 +13,13 @@ class MainScreen extends StatelessWidget {
     final bottomNavProvider = context.watch<BottomNavProvider>();
 
     final screens = [CharacterListScreen(), FavoriteScreen()];
+    final titles = ['Characters', 'Favorites'];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Rick and Morty',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          titles[bottomNavProvider.currentIndex],
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         actions: [
