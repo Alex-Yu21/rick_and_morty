@@ -16,9 +16,17 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   @override
   void initState() {
     super.initState();
-
     context.read<CharsBloc>().add(GetAllChars(page: 1));
+    _setupScrollListener();
+  }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _setupScrollListener() {
     _scrollController.addListener(() {
       final bloc = context.read<CharsBloc>();
       if (_scrollController.position.pixels >=
@@ -27,12 +35,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         bloc.add(GetAllChars(page: bloc.currentPage + 1));
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
