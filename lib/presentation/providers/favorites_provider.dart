@@ -16,6 +16,11 @@ class FavoritesProvider extends ChangeNotifier {
 
   bool isFavorite(int id) => _box.containsKey(id);
 
+  void _updateCache() {
+    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
+    notifyListeners();
+  }
+
   void toggleFavorite(Results character) {
     if (character.id == null) return;
 
@@ -26,14 +31,12 @@ class FavoritesProvider extends ChangeNotifier {
       _box.put(characterId, ResultsHiveModel.fromResults(character));
     }
 
-    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
-    notifyListeners();
+    _updateCache();
   }
 
   void removeFavorite(int id) {
     _box.delete(id);
-    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
-    notifyListeners();
+    _updateCache();
   }
 
   void sortByName() {
