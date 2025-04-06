@@ -12,8 +12,8 @@ class GetCharsRepo {
       print('RESPONSE DATA: ${response.data}');
       return CharacterModel.fromJson(response.data);
     } catch (e) {
-      print('ERROR: $e');
-      throw Exception('Ошибка при получении данных: $e');
+      print('[ERROR]: $e');
+      rethrow;
     }
   }
 }

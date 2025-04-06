@@ -15,7 +15,10 @@ class MainScreen extends StatelessWidget {
     final screens = [CharacterListScreen(), FavoriteScreen()];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rick and Morty'),
+        title: const Text(
+          'Rick and Morty',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           IconButton(

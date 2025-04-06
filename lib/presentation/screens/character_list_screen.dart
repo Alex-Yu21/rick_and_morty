@@ -42,13 +42,18 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         if (state is CharsLoaded) {
           final characters = state.characterModel.results ?? [];
 
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount: characters.length,
-            itemBuilder: (context, index) {
-              final character = characters[index];
-              return CharacterCard(character: character);
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<CharsBloc>().add(GetAllChars(page: 1));
             },
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: characters.length,
+              itemBuilder: (context, index) {
+                final character = characters[index];
+                return CharacterCard(character: character);
+              },
+            ),
           );
         }
 

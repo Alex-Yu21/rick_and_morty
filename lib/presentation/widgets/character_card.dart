@@ -1,31 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rick_and_morty/models/character.dart';
+import 'package:rick_and_morty/presentation/providers/favorites_provider.dart';
 
-class CharacterCard extends StatefulWidget {
-  const CharacterCard({
-    super.key,
-    required this.character,
-    this.isFavorit = false,
-  });
+class CharacterCard extends StatelessWidget {
+  const CharacterCard({super.key, required this.character});
 
   final Results character;
-  final bool isFavorit;
-
-  @override
-  State<CharacterCard> createState() => _CharacterCardState();
-}
-
-class _CharacterCardState extends State<CharacterCard> {
-  late bool isFavorit;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorit = widget.isFavorit;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final favoritesProvider = context.watch<FavoritesProvider>();
+    final isFavorit = favoritesProvider.isFavorite(character.id ?? -1);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -41,11 +29,22 @@ class _CharacterCardState extends State<CharacterCard> {
                 topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
               ),
-              child: Image.network(
-                widget.character.image ?? '',
+              child: CachedNetworkImage(
+                imageUrl: character.image ?? '',
                 width: 100,
                 height: 130,
                 fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                errorWidget:
+                    (context, url, error) => Image.asset(
+                      'assets/pngs/not_found.png',
+                      width: 100,
+                      height: 130,
+                      fit: BoxFit.cover,
+                    ),
               ),
             ),
             Expanded(
@@ -59,7 +58,7 @@ class _CharacterCardState extends State<CharacterCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.character.name ?? '',
+                      character.name ?? '',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -67,7 +66,7 @@ class _CharacterCardState extends State<CharacterCard> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Origin: ${widget.character.origin?.name ?? ''}',
+                      'Origin: ${character.origin?.name ?? ''}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -80,15 +79,11 @@ class _CharacterCardState extends State<CharacterCard> {
                           fontWeight: FontWeight.w300,
                         ),
                         children: [
+                          TextSpan(text: '${character.species ?? ''} - '),
                           TextSpan(
-                            text: '${widget.character.species ?? ''} - ',
-                          ),
-                          TextSpan(
-                            text: widget.character.status ?? '',
+                            text: character.status ?? '',
                             style: TextStyle(
-                              color: _getStatusColor(
-                                widget.character.status ?? '',
-                              ),
+                              color: _getStatusColor(character.status ?? ''),
                             ),
                           ),
                         ],
@@ -111,9 +106,7 @@ class _CharacterCardState extends State<CharacterCard> {
                             : Theme.of(context).colorScheme.primary,
                   ),
                   onPressed: () {
-                    setState(() {
-                      isFavorit = !isFavorit;
-                    });
+                    favoritesProvider.toggleFavorite(character);
                   },
                 ),
               ),
