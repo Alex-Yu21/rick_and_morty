@@ -30,6 +30,12 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
       if (cached.isNotEmpty) {
         _allResults = cached;
         emit(CharsLoaded(CharacterModel(results: cached)));
+
+        if (kDebugMode) {
+          debugPrint(
+            '[CharsBloc] Загружено из кеша: ${cached.length} персонажей',
+          );
+        }
       } else {
         emit(CharsLoading());
       }
@@ -37,7 +43,7 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
 
     try {
       if (kDebugMode) {
-        debugPrint('[CharsBloc] Запрос страницы: ${event.page}');
+        debugPrint('[CharsBloc] Запрос к API. Страница: ${event.page}');
       }
 
       final characterModel = await repo.getData(page: event.page);
@@ -45,22 +51,20 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
       currentPage = event.page;
       hasNextPage = characterModel.info?.next != null;
 
+      final newResults = characterModel.results ?? [];
+
       if (event.page == 1) {
-        _allResults = characterModel.results ?? [];
-
-        await box.clear();
-        for (var c in _allResults) {
-          if (c.id != null) {
-            box.put(c.id, ResultsHiveModel.fromResults(c));
-          }
-        }
+        _allResults = newResults;
       } else {
-        final newResults = characterModel.results ?? [];
         _allResults += newResults;
+      }
 
-        for (var c in newResults) {
-          if (c.id != null && !box.containsKey(c.id)) {
-            box.put(c.id, ResultsHiveModel.fromResults(c));
+      for (var c in newResults) {
+        if (c.id != null) {
+          box.put(c.id, ResultsHiveModel.fromResults(c));
+
+          if (kDebugMode) {
+            debugPrint('[Hive] Сохранили персонажа: ${c.name}');
           }
         }
       }
@@ -72,13 +76,11 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
       );
 
       if (kDebugMode) {
-        debugPrint(
-          '[CharsBloc] Всего загружено: ${_allResults.length} персонажей',
-        );
+        debugPrint('[CharsBloc] Всего загружено: ${_allResults.length}');
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('[CharsBloc] Ошибка: $e');
+        debugPrint('[CharsBloc] Ошибка при загрузке: $e');
         debugPrint('[CharsBloc] Стек: $stackTrace');
       }
 
