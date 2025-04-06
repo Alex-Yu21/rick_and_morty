@@ -12,7 +12,13 @@ class CharacterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoritesProvider = context.watch<FavoritesProvider>();
-    final isFavorit = favoritesProvider.isFavorite(character.id ?? -1);
+    final isFavorite = favoritesProvider.isFavorite(character.id ?? -1);
+
+    final name = character.name ?? '';
+    final origin = character.origin?.name ?? '';
+    final species = character.species ?? '';
+    final status = character.status ?? '';
+    final image = character.image ?? '';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -24,29 +30,7 @@ class CharacterCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: character.image ?? '',
-                width: 100,
-                height: 130,
-                fit: BoxFit.cover,
-                placeholder:
-                    (context, url) => const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                errorWidget:
-                    (context, url, error) => Image.asset(
-                      'assets/pngs/not_found.png',
-                      width: 100,
-                      height: 130,
-                      fit: BoxFit.cover,
-                    ),
-              ),
-            ),
+            _buildCharacterImage(image),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -58,7 +42,7 @@ class CharacterCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      character.name ?? '',
+                      name,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -66,7 +50,7 @@ class CharacterCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Origin: ${character.origin?.name ?? ''}',
+                      'Origin: $origin',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -79,11 +63,12 @@ class CharacterCard extends StatelessWidget {
                           fontWeight: FontWeight.w300,
                         ),
                         children: [
-                          TextSpan(text: '${character.species ?? ''} - '),
+                          TextSpan(text: '$species - '),
                           TextSpan(
-                            text: character.status ?? '',
+                            text: status,
                             style: TextStyle(
-                              color: _getStatusColor(character.status ?? ''),
+                              fontWeight: FontWeight.bold,
+                              color: _getStatusColor(status),
                             ),
                           ),
                         ],
@@ -97,17 +82,10 @@ class CharacterCard extends StatelessWidget {
               width: 48,
               child: Align(
                 alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: Icon(
-                    isFavorit ? Icons.star : Icons.star_border,
-                    color:
-                        isFavorit
-                            ? const Color.fromARGB(255, 206, 177, 89)
-                            : Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () {
-                    favoritesProvider.toggleFavorite(character);
-                  },
+                child: _buildFavoriteButton(
+                  context,
+                  favoritesProvider,
+                  isFavorite,
                 ),
               ),
             ),
@@ -117,7 +95,51 @@ class CharacterCard extends StatelessWidget {
     );
   }
 
-  Color? _getStatusColor(String status) {
+  Widget _buildFavoriteButton(
+    BuildContext context,
+    FavoritesProvider provider,
+    bool isFavorite,
+  ) {
+    return IconButton(
+      icon: Icon(
+        isFavorite ? Icons.star : Icons.star_border,
+        color:
+            isFavorite
+                ? const Color.fromARGB(255, 206, 177, 89)
+                : Theme.of(context).colorScheme.primary,
+      ),
+      onPressed: () {
+        provider.toggleFavorite(character);
+      },
+    );
+  }
+
+  ClipRRect _buildCharacterImage(String image) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        bottomLeft: Radius.circular(16),
+      ),
+      child: CachedNetworkImage(
+        imageUrl: image,
+        width: 100,
+        height: 130,
+        fit: BoxFit.cover,
+        placeholder:
+            (context, url) =>
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        errorWidget:
+            (context, url, error) => Image.asset(
+              'assets/pngs/not_found.png',
+              width: 100,
+              height: 130,
+              fit: BoxFit.cover,
+            ),
+      ),
+    );
+  }
+
+  static Color? _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'alive':
         return const Color.fromARGB(255, 42, 94, 43);
