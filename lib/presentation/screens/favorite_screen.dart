@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rick_and_morty/models/character.dart';
 import 'package:rick_and_morty/presentation/providers/favorites_provider.dart';
 import 'package:rick_and_morty/presentation/widgets/character_card.dart';
 
@@ -31,6 +32,47 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     }
   }
 
+  void _handleDismissed(Results character) {
+    final provider = context.read<FavoritesProvider>();
+    provider.toggleFavorite(character);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${character.name} was removed'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            provider.toggleFavorite(character);
+          },
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Widget _buildSortDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Text('Sort by: '),
+          const SizedBox(width: 8),
+          DropdownButton<String>(
+            value: _selectedSort,
+            onChanged: _onSortChanged,
+            items: const [
+              DropdownMenuItem(value: 'none', child: Text('None')),
+              DropdownMenuItem(value: 'status', child: Text('Status')),
+              DropdownMenuItem(value: 'name', child: Text('Name')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final favoritesProvider = context.watch<FavoritesProvider>();
@@ -41,26 +83,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
-          if (favorites.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Text('Sort by: '),
-                  const SizedBox(width: 8),
-                  DropdownButton<String>(
-                    value: _selectedSort,
-                    onChanged: _onSortChanged,
-                    items: const [
-                      DropdownMenuItem(value: 'none', child: Text('None')),
-                      DropdownMenuItem(value: 'status', child: Text('Status')),
-                      DropdownMenuItem(value: 'name', child: Text('Name')),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          if (favorites.isNotEmpty) _buildSortDropdown(),
           if (favorites.isEmpty)
             Expanded(
               child: Center(
@@ -104,24 +127,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         ],
                       ),
                     ),
-                    onDismissed: (direction) {
-                      final provider = context.read<FavoritesProvider>();
-                      provider.toggleFavorite(character);
-
-                      ScaffoldMessenger.of(context).clearSnackBars();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${character.name} was removed'),
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () {
-                              provider.toggleFavorite(character);
-                            },
-                          ),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-                    },
+                    onDismissed: (_) => _handleDismissed(character),
                     child: CharacterCard(character: character),
                   );
                 },
