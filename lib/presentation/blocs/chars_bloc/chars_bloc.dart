@@ -36,7 +36,9 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
     }
 
     try {
-      debugPrint('[CharsBloc] Запрос страницы: ${event.page}');
+      if (kDebugMode) {
+        debugPrint('[CharsBloc] Запрос страницы: ${event.page}');
+      }
 
       final characterModel = await repo.getData(page: event.page);
 
@@ -62,15 +64,19 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
         ),
       );
 
-      debugPrint(
-        '[CharsBloc] Всего загружено: ${_allResults.length} персонажей',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '[CharsBloc] Всего загружено: ${_allResults.length} персонажей',
+        );
+      }
     } catch (e, stackTrace) {
-      debugPrint('[CharsBloc] Ошибка: $e');
-      debugPrint('[CharsBloc] Стек: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('[CharsBloc] Ошибка: $e');
+        debugPrint('[CharsBloc] Стек: $stackTrace');
+      }
 
       if (state is! CharsLoaded) {
-        emit(CharsError('Не удалось загрузить данные'));
+        emit(CharsError('Network error'));
       }
     }
   }

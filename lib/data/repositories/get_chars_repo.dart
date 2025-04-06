@@ -9,10 +9,8 @@ class GetCharsRepo {
   Future<CharacterModel> getData({int page = 1}) async {
     try {
       final response = await dio.get('/character?page=$page');
-      print('RESPONSE DATA: ${response.data}');
       return CharacterModel.fromJson(response.data);
     } catch (e) {
-      print('[ERROR]: $e');
       rethrow;
     }
   }
