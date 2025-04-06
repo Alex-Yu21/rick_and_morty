@@ -20,12 +20,16 @@ class ResultsHiveModel extends HiveObject {
   @HiveField(4)
   final String image;
 
+  @HiveField(5)
+  final String originName;
+
   ResultsHiveModel({
     required this.id,
     required this.name,
     required this.status,
     required this.species,
     required this.image,
+    required this.originName,
   });
 
   factory ResultsHiveModel.fromResults(Results character) {
@@ -35,6 +39,7 @@ class ResultsHiveModel extends HiveObject {
       status: character.status ?? '',
       species: character.species ?? '',
       image: character.image ?? '',
+      originName: character.origin?.name ?? '',
     );
   }
 
@@ -45,6 +50,7 @@ class ResultsHiveModel extends HiveObject {
       status: status,
       species: species,
       image: image,
+      origin: Origin(name: originName),
     );
   }
 }

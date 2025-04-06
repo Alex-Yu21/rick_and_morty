@@ -100,6 +100,8 @@ class CharacterCard extends StatelessWidget {
     FavoritesProvider provider,
     bool isFavorite,
   ) {
+    final messenger = ScaffoldMessenger.of(context);
+
     return IconButton(
       icon: Icon(
         isFavorite ? Icons.star : Icons.star_border,
@@ -109,7 +111,27 @@ class CharacterCard extends StatelessWidget {
                 : Theme.of(context).colorScheme.primary,
       ),
       onPressed: () {
+        final wasFavorite = isFavorite;
         provider.toggleFavorite(character);
+
+        messenger.removeCurrentSnackBar();
+
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              wasFavorite
+                  ? '${character.name ?? 'Character'} removed from favorites'
+                  : '${character.name ?? 'Character'} added to favorites',
+            ),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                provider.toggleFavorite(character);
+              },
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       },
     );
   }
