@@ -55,7 +55,14 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
           }
         }
       } else {
-        _allResults += characterModel.results ?? [];
+        final newResults = characterModel.results ?? [];
+        _allResults += newResults;
+
+        for (var c in newResults) {
+          if (c.id != null && !box.containsKey(c.id)) {
+            box.put(c.id, ResultsHiveModel.fromResults(c));
+          }
+        }
       }
 
       emit(
