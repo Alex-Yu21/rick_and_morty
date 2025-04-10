@@ -1,17 +1,17 @@
-import 'package:dio/dio.dart';
 import 'package:rick_and_morty/models/character.dart';
+import 'package:rick_and_morty/services/api_client.dart';
 
 class GetCharsRepo {
-  GetCharsRepo({required this.dio});
+  final ApiClient api;
 
-  final Dio dio;
+  GetCharsRepo({required this.api});
 
   Future<CharacterModel> getData({int page = 1}) async {
-    try {
-      final response = await dio.get('/character?page=$page');
-      return CharacterModel.fromJson(response.data);
-    } catch (e) {
-      rethrow;
-    }
+    final response = await api.get(
+      'https://rickandmortyapi.com/api/character',
+      queryParameters: {'page': page},
+    );
+
+    return CharacterModel.fromJson(response);
   }
 }
