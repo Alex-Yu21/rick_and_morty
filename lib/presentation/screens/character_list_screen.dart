@@ -16,7 +16,9 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<CharsBloc>().add(GetAllChars(page: 1));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CharsBloc>().add(GetAllChars(page: 1));
+    });
     _setupScrollListener();
   }
 

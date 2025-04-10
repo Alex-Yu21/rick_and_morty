@@ -1,21 +1,21 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:rick_and_morty/data/repositories/get_chars_repo.dart';
 import 'package:rick_and_morty/models/character.dart';
-import 'package:rick_and_morty/models/results_hive_model.dart';
+import 'package:rick_and_morty/services/character_cache.dart';
 
 part 'chars_event.dart';
 part 'chars_state.dart';
 
 class CharsBloc extends Bloc<CharsEvent, CharsState> {
   final GetCharsRepo repo;
+  final CharacterCache cache;
 
   int currentPage = 1;
   bool hasNextPage = true;
   List<Results> _allResults = [];
 
-  CharsBloc({required this.repo}) : super(CharsInitial()) {
+  CharsBloc({required this.repo, required this.cache}) : super(CharsInitial()) {
     on<GetAllChars>(_onGetAllChars);
   }
 
@@ -23,10 +23,8 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
     GetAllChars event,
     Emitter<CharsState> emit,
   ) async {
-    final box = Hive.box<ResultsHiveModel>('cached_chars');
-
     if (event.page == 1) {
-      final cached = box.values.map((e) => e.toResults()).toList();
+      final cached = cache.getCached();
       if (cached.isNotEmpty) {
         _allResults = cached;
         emit(CharsLoaded(CharacterModel(results: cached)));
@@ -36,6 +34,8 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
             '[CharsBloc] Загружено из кеша: ${cached.length} персонажей',
           );
         }
+
+        return;
       } else {
         emit(CharsLoading());
       }
@@ -59,15 +59,7 @@ class CharsBloc extends Bloc<CharsEvent, CharsState> {
         _allResults += newResults;
       }
 
-      for (var c in newResults) {
-        if (c.id != null) {
-          box.put(c.id, ResultsHiveModel.fromResults(c));
-
-          if (kDebugMode) {
-            debugPrint('[Hive] Сохранили персонажа: ${c.name}');
-          }
-        }
-      }
+      await cache.cacheResults(newResults);
 
       emit(
         CharsLoaded(
