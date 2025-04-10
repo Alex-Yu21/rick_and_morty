@@ -1,55 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:rick_and_morty/models/character.dart';
-import 'package:rick_and_morty/models/results_hive_model.dart';
+import 'package:rick_and_morty/services/services.dart';
 
 class FavoritesProvider extends ChangeNotifier {
-  final Box<ResultsHiveModel> _box = Hive.box<ResultsHiveModel>('favorites');
+  final FavoritesStorage storage;
 
-  List<Results> _cachedFavorites = [];
+  FavoritesProvider(this.storage);
 
-  FavoritesProvider() {
-    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
-  }
+  List<Results> get favorites => storage.getFavorites();
 
-  List<Results> get favorites => _cachedFavorites;
+  bool isFavorite(int id) => storage.isFavorite(id);
 
-  bool isFavorite(int id) => _box.containsKey(id);
-
-  void _updateCache() {
-    _cachedFavorites = _box.values.map((e) => e.toResults()).toList();
+  Future<void> toggleFavorite(Results character) async {
+    await storage.toggleFavorite(character);
     notifyListeners();
   }
 
-  void toggleFavorite(Results character) {
-    if (character.id == null) return;
-
-    final characterId = character.id!;
-    if (isFavorite(characterId)) {
-      _box.delete(characterId);
-    } else {
-      _box.put(characterId, ResultsHiveModel.fromResults(character));
-    }
-
-    _updateCache();
-  }
-
-  void removeFavorite(int id) {
-    _box.delete(id);
-    _updateCache();
+  Future<void> removeFavorite(int id) async {
+    await storage.removeFavorite(id);
+    notifyListeners();
   }
 
   void sortByName() {
-    _cachedFavorites.sort(
-      (Results a, Results b) => (a.name ?? '').compareTo(b.name ?? ''),
-    );
+    storage.sortByName();
     notifyListeners();
   }
 
   void sortByStatus() {
-    _cachedFavorites.sort(
-      (Results a, Results b) => (a.status ?? '').compareTo(b.status ?? ''),
-    );
+    storage.sortByStatus();
     notifyListeners();
   }
 }
